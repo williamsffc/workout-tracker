@@ -1,11 +1,13 @@
+require('./models/db');
+require('./routes/view');
+require("./routes/api");
+
 const express = require("express");
 const logger = require("morgan");
+const mongojs = require("mongojs");
 const mongoose = require("mongoose");
 const path = require("path");
 
-const PORT = process.env.PORT || 3000;
-
-const User = require("./models/userModel.js");
 const app = express();
 
 app.use(logger("dev"));
@@ -16,27 +18,49 @@ app.use(express.json());
 app.use(express.static("public"));
 
 const databaseUrl = "fitness";
-const collections = ["workout"];
+const collections = ["Workout"];
 
-mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost/workout", { 
-    useNewUrlParser: true, 
-    useUnifiedTopology: true
+const db = mongojs(databaseUrl, collections);
+
+db.on("error", error => {
+    console.log("Database Error:", error);
 });
 
-app.get("/exercise", (req, res) => {
-    res.sendFile(path.join(__dirname + "/public/exercise.html"));
-});
+const PORT = process.env.PORT || 3000;
 
-app.get("/stats", (req, res) => {
-    res.sendFile(path.join(__dirname + "/public/stats.html"));
-});
+mongoose.connect(
+    process.env.MONGODB_URI || "mongodb://localhost:27017/fitness",
+    {
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+        useFindAndModify: false
+    },
+    (err) => {
+        if (!err) { console.log('MongoDB Connection Succeeded.') }
+        else { console.log('Error in  DB Connection: ' + err) }
+    });
+    
+// const Workout = require("./models/exercise.model");
 
-//routes
-// app.use(require("./routes/api.js"));
-// app.use(require("./routes/view.js"));
+
+
+// app.post("/complete", (req, res) => {
+//     // console.log(req.body)
+//     db.exercise.insert(req.body, (err, data) => {
+//         if (err) {
+//             console.log(err);
+//         } else {
+//             res.json(data);
+//         }
+//     });
+// });
+
+
+
 
 app.listen(PORT, () => {
     console.log(`App running on port ${PORT}!`);
 });
 
 // https://git.heroku.com/murmuring-wildwood-71245.git
+
