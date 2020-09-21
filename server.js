@@ -3,7 +3,7 @@ const logger = require("morgan");
 const mongoose = require("mongoose");
 const mongojs = require("mongojs");
 const path = require("path");
-const Workout = require("./models/workout");
+const Workout = require("./models/exercise.model");
 
 const app = express();
 
